@@ -27,23 +27,23 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  11 .ARM.attributes 00000030  00000000  00000000  00020204  2**0
                   CONTENTS, READONLY
- 12 .debug_info   00019fdb  00000000  00000000  00020234  2**0
+ 12 .debug_info   0001a7f8  00000000  00000000  00020234  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_abbrev 00003210  00000000  00000000  0003a20f  2**0
+ 13 .debug_abbrev 00003259  00000000  00000000  0003aa2c  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_aranges 00001540  00000000  00000000  0003d420  2**3
+ 14 .debug_aranges 00001540  00000000  00000000  0003dc88  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_ranges 000013d8  00000000  00000000  0003e960  2**3
+ 15 .debug_ranges 000013d8  00000000  00000000  0003f1c8  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  0002b3fc  00000000  00000000  0003fd38  2**0
+ 16 .debug_macro  0002b8e0  00000000  00000000  000405a0  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   000185bd  00000000  00000000  0006b134  2**0
+ 17 .debug_line   0001879c  00000000  00000000  0006be80  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    00110b5d  00000000  00000000  000836f1  2**0
+ 18 .debug_str    00110b55  00000000  00000000  0008461c  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000053  00000000  00000000  0019424e  2**0
+ 19 .comment      00000053  00000000  00000000  00195171  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  000069dc  00000000  00000000  001942a4  2**2
+ 20 .debug_frame  000069dc  00000000  00000000  001951c4  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -2051,6 +2051,7 @@ int main(void)
  8001414:	f005 fa3e 	bl	8006894 <siprintf>
  8001418:	6438      	str	r0, [r7, #64]	; 0x40
 			//			//printf("%s, %d", buffer, length);
+//			HAL_Delay(1000);
 			HAL_UART_Transmit(&huart1, (uint8_t*)buffer, length, HAL_MAX_DELAY);
  800141a:	6c3b      	ldr	r3, [r7, #64]	; 0x40
  800141c:	b29a      	uxth	r2, r3
@@ -2079,6 +2080,8 @@ int main(void)
  800144c:	f005 fa22 	bl	8006894 <siprintf>
  8001450:	6438      	str	r0, [r7, #64]	; 0x40
 			//printf("%s, %d", buffer, length);
+//			HAL_Delay(1000);
+
 			HAL_UART_Transmit(&huart1, (uint8_t*)buffer, length, HAL_MAX_DELAY);
  8001452:	6c3b      	ldr	r3, [r7, #64]	; 0x40
  8001454:	b29a      	uxth	r2, r3
@@ -2110,6 +2113,8 @@ int main(void)
  8001482:	4618      	mov	r0, r3
  8001484:	f005 fa06 	bl	8006894 <siprintf>
  8001488:	6438      	str	r0, [r7, #64]	; 0x40
+//			HAL_Delay(1000);
+
 			//printf("%s, %d", buffer, length);
 			HAL_UART_Transmit(&huart1, (uint8_t*)buffer, length, HAL_MAX_DELAY);
  800148a:	6c3b      	ldr	r3, [r7, #64]	; 0x40

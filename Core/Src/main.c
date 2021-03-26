@@ -150,6 +150,7 @@ int main(void)
 			humidity_val = (int)BSP_HSENSOR_ReadHumidity();
 			length = sprintf(buffer, "Humidity: %d\r\n", humidity_val);
 			//			//printf("%s, %d", buffer, length);
+//			HAL_Delay(1000);
 			HAL_UART_Transmit(&huart1, (uint8_t*)buffer, length, HAL_MAX_DELAY);
 
 		}
@@ -157,6 +158,8 @@ int main(void)
 			temp_val = BSP_TSENSOR_ReadTemp();
 			length = sprintf(buffer, "Temperature: %d\r\n", temp_val);
 			//printf("%s, %d", buffer, length);
+//			HAL_Delay(1000);
+
 			HAL_UART_Transmit(&huart1, (uint8_t*)buffer, length, HAL_MAX_DELAY);
 			//			gyro_val = BSP_GYRO_GetXYZ((float)buffer);
 			//			length = sprintf(buffer, "Gyro acceleration: %.2f\r\n", gyro_val);
@@ -168,6 +171,8 @@ int main(void)
 
 			pressure_val = BSP_PSENSOR_ReadPressure();
 			length = sprintf(buffer, "Pressure: %d\r\n", pressure_val);
+//			HAL_Delay(1000);
+
 			//printf("%s, %d", buffer, length);
 			HAL_UART_Transmit(&huart1, (uint8_t*)buffer, length, HAL_MAX_DELAY);
 		}
