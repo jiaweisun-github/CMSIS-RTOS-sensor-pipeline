@@ -86,7 +86,7 @@ int humidity_val, pressure_val, temp_val;
 //int16_t accelero_val, magneto_val;
 //float gyro_val;
 int16_t accelero[3], magneto[3];
-float gyro[3];
+float* gyro[3];
 char buffer[50];
 int length = 0;
 int buttonPressed = 0;
@@ -129,6 +129,9 @@ int main(void)
 	BSP_HSENSOR_Init();
 	BSP_PSENSOR_Init();
 	BSP_TSENSOR_Init();
+	BSP_ACCELERO_Init();
+	BSP_GYRO_Init();
+	BSP_MAGNETO_Init();
 
 	/* USER CODE END 2 */
 
@@ -461,13 +464,13 @@ void startReadSensor(void const * argument)
 		else if (read_v_or_t == 3) {
 
 			BSP_GYRO_GetXYZ(gyro);
-			length = sprintf(buffer, "Gyrometer: X:%d, Y:%d, Z:%d\r\n", gyro[0], gyro[1], gyro[2]);
+			length = sprintf(buffer, "Gyrometer: X:%d, Y:%d, Z:%d\r\n", (int)gyro[0], (int)gyro[1], (int)gyro[2]);
 
 		}
 		else if (read_v_or_t == 4) {
 
 			BSP_ACCELERO_AccGetXYZ(accelero);
-			length = sprintf(buffer, "Accelerometer: X:%d, Y:%d, Z:%d\r\n", accelero[0], accelero[1], accelero[2]);
+			length = sprintf(buffer, "Accelerometer: X:%d, Y:%d, Z:%d\r\n", (int)accelero[0], (int)accelero[1], (int)accelero[2]);
 
 		}
 		else if (read_v_or_t == 5) {
