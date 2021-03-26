@@ -19,12 +19,16 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+#include "stdio.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 //#include "stm32l4s5i_iot01_accelero.h"
 //#include "stm32l4s5i_iot01_gyro.h"
 #include "stm32l4s5i_iot01_hsensor.h"
+#include "stm32l4s5i_iot01_psensor.h"
+#include "stm32l4s5i_iot01_tsensor.h"
+//#include "stm32l4s5i_iot01_hsensor.h"
+
 //#include "stm32l4s5i_iot01_magneto.h"
 #include "stm32l4s5i_iot01.h"
 #include "stm32l4xx_hal_uart.h"
@@ -69,61 +73,104 @@ static void MX_I2C2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
+ * @brief  The application entry point.
+ * @retval int
+ */
 int main(void)
 {
-  /* USER CODE BEGIN 1 */
+	/* USER CODE BEGIN 1 */
 
-  /* USER CODE END 1 */
+	/* USER CODE END 1 */
 
-  /* MCU Configuration--------------------------------------------------------*/
+	/* MCU Configuration--------------------------------------------------------*/
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+	HAL_Init();
 
-  /* USER CODE BEGIN Init */
+	/* USER CODE BEGIN Init */
 
-  /* USER CODE END Init */
+	/* USER CODE END Init */
 
-  /* Configure the system clock */
-  SystemClock_Config();
+	/* Configure the system clock */
+	SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
+	/* USER CODE BEGIN SysInit */
 
-  /* USER CODE END SysInit */
+	/* USER CODE END SysInit */
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_USART1_UART_Init();
-  MX_I2C2_Init();
-  /* USER CODE BEGIN 2 */
-  BSP_HSENSOR_Init();
-  float humidity_val = 0;
-  char buffer[50];
-  int length = 0;
-  /* USER CODE END 2 */
+	/* Initialize all configured peripherals */
+	MX_GPIO_Init();
+	MX_USART1_UART_Init();
+	MX_I2C2_Init();
+	/* USER CODE BEGIN 2 */
+	BSP_HSENSOR_Init();
+	BSP_PSENSOR_Init();
+	BSP_TSENSOR_Init();
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+	int humidity_val, pressure_val, temp_val = 0;
+	char buffer[50];
+	int length = 0;
+	uint8_t button_pressed = 0;
+	uint8_t wave_mode = 0;
+	/* USER CODE END 2 */
 
-	  humidity_val = BSP_HSENSOR_ReadHumidity();
-	  length = sprintf(buffer, "Humidity: %.2f\r\n", humidity_val);
-//	  printf("%s, %d", buffer, length);
-	  HAL_UART_Transmit(&huart1, (uint8_t*)buffer, length, HAL_MAX_DELAY);
-//	  HAL_Delay(1000);
-    /* USER CODE END WHILE */
+	/* Infinite loop */
+	/* USER CODE BEGIN WHILE */
+	while (1)
+	{
+		if(!HAL_GPIO_ReadPin(BUTTON_BLUE_GPIO_Port, BUTTON_BLUE_Pin))
+		{
+			if(!button_pressed)
+			{
+				HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
+				button_pressed = 1;
+				if (wave_mode < 2){
+					wave_mode++;
+				}
+				else{
+					wave_mode = 0;
+				}
+			}
+		}
+		else
+		{
+			button_pressed = 0;
+		}
 
-    /* USER CODE BEGIN 3 */
-  }
-  /* USER CODE END 3 */
+		if (wave_mode == 0){
+			humidity_val = (int)BSP_HSENSOR_ReadHumidity();
+			length = sprintf(buffer, "Humidity: %d\r\n", humidity_val);
+			//			//printf("%s, %d", buffer, length);
+			HAL_UART_Transmit(&huart1, (uint8_t*)buffer, length, HAL_MAX_DELAY);
+
+		}
+		else if (wave_mode == 1) {
+			temp_val = BSP_TSENSOR_ReadTemp();
+			length = sprintf(buffer, "Temperature: %d\r\n", temp_val);
+			//printf("%s, %d", buffer, length);
+			HAL_UART_Transmit(&huart1, (uint8_t*)buffer, length, HAL_MAX_DELAY);
+			//			gyro_val = BSP_GYRO_GetXYZ((float)buffer);
+			//			length = sprintf(buffer, "Gyro acceleration: %.2f\r\n", gyro_val);
+			//			//printf("%s, %d", buffer, length);
+			//			HAL_UART_Transmit(&huart1, (uint8_t*)buffer, length, HAL_MAX_DELAY);
+
+		}
+		else if (wave_mode == 2) {
+
+			pressure_val = BSP_PSENSOR_ReadPressure();
+			length = sprintf(buffer, "Pressure: %d\r\n", pressure_val);
+			//printf("%s, %d", buffer, length);
+			HAL_UART_Transmit(&huart1, (uint8_t*)buffer, length, HAL_MAX_DELAY);
+		}
+	}
+	/* USER CODE END WHILE */
+
+	/* USER CODE BEGIN 3 */
+
+	/* USER CODE END 3 */
 }
 
 /**
