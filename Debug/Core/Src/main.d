@@ -47,7 +47,12 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h \
- ../Core/Inc/stm32l4s5i_iot01_hsensor.h ../Core/Inc/stm32l4s5i_iot01.h \
+ ../Core/Inc/stm32l4s5i_iot01_accelero.h ../Core/Inc/stm32l4s5i_iot01.h \
+ ../Core/Inc/../Components/lsm6dsl/lsm6dsl.h \
+ ../Core/Inc/../Components/lsm6dsl/../Common/accelero.h \
+ ../Core/Inc/../Components/lsm6dsl/../Common/gyro.h \
+ ../Core/Inc/stm32l4s5i_iot01_gyro.h \
+ ../Core/Inc/stm32l4s5i_iot01_hsensor.h \
  ../Core/Inc/../Components/hts221/hts221.h \
  ../Core/Inc/../Components/hts221/../Common/hsensor.h \
  ../Core/Inc/../Components/hts221/../Common/tsensor.h \
@@ -55,7 +60,11 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Core/Inc/../Components/lps22hb/lps22hb.h \
  ../Core/Inc/../Components/lps22hb/../Common/psensor.h \
  ../Core/Inc/../Components/lps22hb/../Common/tsensor.h \
- ../Core/Inc/stm32l4s5i_iot01_tsensor.h ../Core/Inc/stm32l4s5i_iot01.h
+ ../Core/Inc/stm32l4s5i_iot01_tsensor.h \
+ ../Core/Inc/stm32l4s5i_iot01_magneto.h \
+ ../Core/Inc/../Components/lis3mdl/lis3mdl.h \
+ ../Core/Inc/../Components/lis3mdl/../Common/magneto.h \
+ ../Core/Inc/stm32l4s5i_iot01.h
 
 ../Core/Inc/main.h:
 
@@ -155,9 +164,19 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 
 ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h:
 
-../Core/Inc/stm32l4s5i_iot01_hsensor.h:
+../Core/Inc/stm32l4s5i_iot01_accelero.h:
 
 ../Core/Inc/stm32l4s5i_iot01.h:
+
+../Core/Inc/../Components/lsm6dsl/lsm6dsl.h:
+
+../Core/Inc/../Components/lsm6dsl/../Common/accelero.h:
+
+../Core/Inc/../Components/lsm6dsl/../Common/gyro.h:
+
+../Core/Inc/stm32l4s5i_iot01_gyro.h:
+
+../Core/Inc/stm32l4s5i_iot01_hsensor.h:
 
 ../Core/Inc/../Components/hts221/hts221.h:
 
@@ -174,5 +193,11 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Core/Inc/../Components/lps22hb/../Common/tsensor.h:
 
 ../Core/Inc/stm32l4s5i_iot01_tsensor.h:
+
+../Core/Inc/stm32l4s5i_iot01_magneto.h:
+
+../Core/Inc/../Components/lis3mdl/lis3mdl.h:
+
+../Core/Inc/../Components/lis3mdl/../Common/magneto.h:
 
 ../Core/Inc/stm32l4s5i_iot01.h:
