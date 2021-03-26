@@ -58,13 +58,9 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-/* USER CODE BEGIN Private defines */
-#define BUTTON_BLUE_Pin GPIO_PIN_13
-#define BUTTON_BLUE_GPIO_Port GPIOC
-#define ADC1_Pin GPIO_PIN_0
-#define ADC1_GPIO_Port GPIOC
 #define LED_GREEN_Pin GPIO_PIN_14
 #define LED_GREEN_GPIO_Port GPIOB
+/* USER CODE BEGIN Private defines */
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
