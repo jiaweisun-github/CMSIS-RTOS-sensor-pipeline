@@ -19,6 +19,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -59,6 +60,9 @@ I2C_HandleTypeDef hi2c2;
 
 UART_HandleTypeDef huart1;
 
+osThreadId selectModeHandle;
+osThreadId outputHandle;
+osThreadId readSensorHandle;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -68,12 +72,23 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_I2C2_Init(void);
+void startSelectMode(void const * argument);
+void startOutput(void const * argument);
+void startReadSensor(void const * argument);
+
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+int humidity_val, pressure_val, temp_val = 0;
+	char buffer[50];
+	int length = 0;
+	int buttonPressed = 0;
+//	uint8_t wave_mode = 0;
+  	int read_v_or_t = 0; //v is false, t is true
+//  	int sensor_mode[6] = {0,1,2,3,4,5};
 /* USER CODE END 0 */
 
 /**
@@ -111,71 +126,57 @@ int main(void)
 	BSP_PSENSOR_Init();
 	BSP_TSENSOR_Init();
 
-	int humidity_val, pressure_val, temp_val = 0;
-	char buffer[50];
-	int length = 0;
-	int buttonPressed = 0;
-//	uint8_t wave_mode = 0;
-  	int read_v_or_t = 0; //v is false, t is true
+//	int humidity_val, pressure_val, temp_val = 0;
+//	char buffer[50];
+//	int length = 0;
+//	int buttonPressed = 0;
+////	uint8_t wave_mode = 0;
+//  	int read_v_or_t = 0; //v is false, t is true
 
   /* USER CODE END 2 */
 
+  /* USER CODE BEGIN RTOS_MUTEX */
+  /* add mutexes, ... */
+  /* USER CODE END RTOS_MUTEX */
+
+  /* USER CODE BEGIN RTOS_SEMAPHORES */
+  /* add semaphores, ... */
+  /* USER CODE END RTOS_SEMAPHORES */
+
+  /* USER CODE BEGIN RTOS_TIMERS */
+  /* start timers, add new ones, ... */
+  /* USER CODE END RTOS_TIMERS */
+
+  /* USER CODE BEGIN RTOS_QUEUES */
+  /* add queues, ... */
+  /* USER CODE END RTOS_QUEUES */
+
+  /* Create the thread(s) */
+  /* definition and creation of selectMode */
+  osThreadDef(selectMode, startSelectMode, osPriorityNormal, 0, 128);
+  selectModeHandle = osThreadCreate(osThread(selectMode), NULL);
+
+  /* definition and creation of output */
+  osThreadDef(output, startOutput, osPriorityIdle, 0, 128);
+  outputHandle = osThreadCreate(osThread(output), NULL);
+
+  /* definition and creation of readSensor */
+  osThreadDef(readSensor, startReadSensor, osPriorityIdle, 0, 128);
+  readSensorHandle = osThreadCreate(osThread(readSensor), NULL);
+
+  /* USER CODE BEGIN RTOS_THREADS */
+  /* add threads, ... */
+  /* USER CODE END RTOS_THREADS */
+
+  /* Start scheduler */
+  osKernelStart();
+
+  /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	while (1)
 	{
-		if(!HAL_GPIO_ReadPin(BUTTON_BLUE_GPIO_Port, BUTTON_BLUE_Pin))
-		{
-			if(!buttonPressed)
-			{
-				HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
-				buttonPressed = 1;
-				if (read_v_or_t < 2)
-				{
-					read_v_or_t = read_v_or_t + 1;
-				}
-				else
-				{
-					read_v_or_t = 0;
-				}
-			}
-		}
-		else
-		{
-			buttonPressed = 0;
-		}
-		HAL_Delay(1);
 
-		if (read_v_or_t == 0){
-			humidity_val = (int)BSP_HSENSOR_ReadHumidity();
-			length = sprintf(buffer, "Humidity: %d\r\n", humidity_val);
-			//			//printf("%s, %d", buffer, length);
-//			HAL_Delay(1000);
-			HAL_UART_Transmit(&huart1, (uint8_t*)buffer, length, HAL_MAX_DELAY);
-
-		}
-		else if (read_v_or_t == 1) {
-			temp_val = BSP_TSENSOR_ReadTemp();
-			length = sprintf(buffer, "Temperature: %d\r\n", temp_val);
-			//printf("%s, %d", buffer, length);
-//			HAL_Delay(1000);
-
-			HAL_UART_Transmit(&huart1, (uint8_t*)buffer, length, HAL_MAX_DELAY);
-			//			gyro_val = BSP_GYRO_GetXYZ((float)buffer);
-			//			length = sprintf(buffer, "Gyro acceleration: %.2f\r\n", gyro_val);
-			//			//printf("%s, %d", buffer, length);
-			//			HAL_UART_Transmit(&huart1, (uint8_t*)buffer, length, HAL_MAX_DELAY);
-
-		}
-		else if (read_v_or_t == 2) {
-
-			pressure_val = BSP_PSENSOR_ReadPressure();
-			length = sprintf(buffer, "Pressure: %d\r\n", pressure_val);
-//			HAL_Delay(1000);
-
-			//printf("%s, %d", buffer, length);
-			HAL_UART_Transmit(&huart1, (uint8_t*)buffer, length, HAL_MAX_DELAY);
-		}
 	}
     /* USER CODE END WHILE */
 
@@ -365,13 +366,115 @@ static void MX_GPIO_Init(void)
 
 }
 
-
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
 
- /**
-  * @brief  Period elapsed callback in non blocking mode
+/* USER CODE BEGIN Header_startSelectMode */
+/**
+ * @brief  Function implementing the selectMode thread.
+ * @param  argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_startSelectMode */
+void startSelectMode(void const * argument)
+{
+	/* USER CODE BEGIN 5 */
+	/* Infinite loop */
+	for(;;)
+	{
+		osDelay(1);
+		if(!HAL_GPIO_ReadPin(BUTTON_BLUE_GPIO_Port, BUTTON_BLUE_Pin))
+		{
+			if(!buttonPressed)
+			{
+				HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
+				buttonPressed = 1;
+				if (read_v_or_t < 2)
+				{
+					read_v_or_t = read_v_or_t + 1;
+				}
+				else
+				{
+					read_v_or_t = 0;
+				}
+			}
+		}
+		else
+		{
+			buttonPressed = 0;
+		}
+		//    		HAL_Delay(1);
+
+		//
+	}
+	/* USER CODE END 5 */
+}
+
+/* USER CODE BEGIN Header_startOutput */
+/**
+ * @brief Function implementing the output thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_startOutput */
+void startOutput(void const * argument)
+{
+	/* USER CODE BEGIN startOutput */
+	/* Infinite loop */
+	for(;;)
+	{
+		osDelay(1);
+		HAL_UART_Transmit(&huart1, (uint8_t*)buffer, length, HAL_MAX_DELAY);
+
+	}
+	/* USER CODE END startOutput */
+}
+
+/* USER CODE BEGIN Header_startReadSensor */
+/**
+ * @brief Function implementing the readSensor thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_startReadSensor */
+void startReadSensor(void const * argument)
+{
+	/* USER CODE BEGIN startReadSensor */
+	/* Infinite loop */
+	for(;;)
+	{
+		osDelay(1);
+		if (read_v_or_t == 0){
+			//
+			humidity_val = (int)BSP_HSENSOR_ReadHumidity();
+			length = sprintf(buffer, "Humidity: %d\r\n", humidity_val);
+
+		}
+		else if (read_v_or_t == 1) {
+			temp_val = BSP_TSENSOR_ReadTemp();
+			length = sprintf(buffer, "Temperature: %d\r\n", temp_val);
+
+			//			gyro_val = BSP_GYRO_GetXYZ((float)buffer);
+			//			length = sprintf(buffer, "Gyro acceleration: %.2f\r\n", gyro_val);
+			//			//printf("%s, %d", buffer, length);
+			//			HAL_UART_Transmit(&huart1, (uint8_t*)buffer, length, HAL_MAX_DELAY);
+
+		}
+		else if (read_v_or_t == 2) {
+
+			pressure_val = BSP_PSENSOR_ReadPressure();
+			length = sprintf(buffer, "Pressure: %d\r\n", pressure_val);
+			//			HAL_Delay(1000);
+
+			//printf("%s, %d", buffer, length);
+		}
+	}
+	/* USER CODE END startReadSensor */
+}
+
+/**
+ * @brief  Period elapsed callback in non blocking mode
   * @note   This function is called  when TIM6 interrupt took place, inside
   * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
   * a global variable "uwTick" used as application time base.
